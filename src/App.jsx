@@ -19,7 +19,7 @@ import {
   pushReadStatusToServer,
   sortBooksByTitle,
 } from './utils/bookStorage';
-import { loadAuthSession, saveAuthSession, clearAuthSession } from './utils/authSession';
+import { loadAuthSession, saveAuthSession, clearAuthSession, touchAuthSession } from './utils/authSession';
 import { useAppNavigation } from './utils/useAppNavigation';
 import { useMediaQuery } from './utils/useMediaQuery';
 import './App.css';
@@ -150,6 +150,27 @@ export default function App() {
     const timer = setTimeout(expireSession, remaining);
     return () => clearTimeout(timer);
   }, [authUser, sessionExpiresAt]);
+
+  // 사용자 활동(클릭·키 입력·스크롤 등)이 있으면 세션을 연장 (최대 1분에 한 번 갱신)
+  useEffect(() => {
+    if (!authUser) return;
+
+    let lastTouch = 0;
+    const onActivity = () => {
+      const now = Date.now();
+      if (now - lastTouch < 60 * 1000) return;
+      lastTouch = now;
+      const expiresAt = touchAuthSession();
+      if (expiresAt) setSessionExpiresAt(expiresAt);
+    };
+
+    const events = ['click', 'keydown', 'scroll', 'touchstart', 'mousemove'];
+    events.forEach((e) =>
+      window.addEventListener(e, onActivity, { capture: true, passive: true })
+    );
+    return () =>
+      events.forEach((e) => window.removeEventListener(e, onActivity, { capture: true }));
+  }, [authUser]);
 
   const handleSaveBook = async (bookData) => {
     if (!authUser) return;

@@ -1,6 +1,6 @@
 const SESSION_KEY = 'hac_auth_session';
 
-// 로그인 세션 유지 시간 — 이 시간이 지나면 자동 로그아웃됩니다.
+// 로그인 세션 유지 시간 — 마지막 활동 후 이 시간이 지나면 자동 로그아웃됩니다.
 export const SESSION_TTL_MS = 30 * 60 * 1000; // 30분
 
 export function saveAuthSession(user, token) {
@@ -32,6 +32,21 @@ export function loadAuthSession() {
     return { user: null, token: null, expiresAt: null };
   } catch {
     return { user: null, token: null, expiresAt: null };
+  }
+}
+
+// 사용자 활동이 있을 때 만료 시각을 지금부터 TTL만큼 연장합니다.
+export function touchAuthSession() {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed?.user) return null;
+    const expiresAt = Date.now() + SESSION_TTL_MS;
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify({ ...parsed, expiresAt }));
+    return expiresAt;
+  } catch {
+    return null;
   }
 }
 
