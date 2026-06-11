@@ -1,0 +1,6 @@
+/api/auth-login   /.netlify/functions/auth-login   200
+/api/auth-signup  /.netlify/functions/auth-signup  200
+/api/auth-users-admin  /.netlify/functions/auth-users-admin  200
+/api/read-status  /.netlify/functions/read-status  200
+/api/books-catalog  /.netlify/functions/books-catalog  200
+/*                /index.html                     200

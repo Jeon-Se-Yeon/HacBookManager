@@ -1,0 +1,45 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+  included_files = ["netlify/lib/**"]
+  external_node_modules = ["@libsql/client", "@libsql/client/web"]
+
+[dev]
+  command = "npm run dev:vite"
+  targetPort = 5173
+  port = 8888
+  autoLaunch = true
+
+[[redirects]]
+  from = "/api/auth-login"
+  to = "/.netlify/functions/auth-login"
+  status = 200
+
+[[redirects]]
+  from = "/api/auth-signup"
+  to = "/.netlify/functions/auth-signup"
+  status = 200
+
+[[redirects]]
+  from = "/api/auth-users-admin"
+  to = "/.netlify/functions/auth-users-admin"
+  status = 200
+
+[[redirects]]
+  from = "/api/read-status"
+  to = "/.netlify/functions/read-status"
+  status = 200
+
+[[redirects]]
+  from = "/api/books-catalog"
+  to = "/.netlify/functions/books-catalog"
+  status = 200
+# SPA fallback — must be last (also in public/_redirects for dist)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

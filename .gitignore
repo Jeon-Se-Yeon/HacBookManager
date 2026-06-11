@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Local Netlify folder
+.netlify
+
+# Local SQLite database
+.data/
+
+# Environment variables (secrets)
+.env
+.env.local
+.env.*.local
