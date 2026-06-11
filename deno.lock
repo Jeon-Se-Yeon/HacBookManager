@@ -11,7 +11,7 @@
   "workspace": {
     "packageJson": {
       "dependencies": [
-        "npm:@netlify/blobs@^8.1.0",
+        "npm:@libsql/client@~0.17.3",
         "npm:@types/react-dom@^18.3.0",
         "npm:@types/react@^18.3.3",
         "npm:@vitejs/plugin-react@^4.3.1",
