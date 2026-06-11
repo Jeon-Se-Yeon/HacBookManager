@@ -39,6 +39,7 @@ export default function App() {
   const [dashboardOpen, setDashboardOpen] = useState(false);
   const [authUser, setAuthUser] = useState(null);
   const [authToken, setAuthToken] = useState(null);
+  const [sessionExpiresAt, setSessionExpiresAt] = useState(null);
   const [booksLoading, setBooksLoading] = useState(true);
   useBodyScrollLock(dashboardOpen);
   const isAdmin = authUser?.role === 'admin';
@@ -47,10 +48,11 @@ export default function App() {
   const showDashboard = isDesktop || dashboardOpen;
 
   useEffect(() => {
-    const { user, token } = loadAuthSession();
+    const { user, token, expiresAt } = loadAuthSession();
     if (user) {
       setAuthUser(user);
       setAuthToken(token);
+      setSessionExpiresAt(expiresAt);
     }
   }, []);
 
@@ -113,7 +115,8 @@ export default function App() {
   const handleLoginSuccess = ({ user, token }) => {
     setAuthUser(user);
     setAuthToken(token || null);
-    saveAuthSession(user, token);
+    const expiresAt = saveAuthSession(user, token);
+    setSessionExpiresAt(expiresAt);
     setSelectedBook(null);
     goHome();
   };
@@ -121,12 +124,32 @@ export default function App() {
   const handleLogout = () => {
     setAuthUser(null);
     setAuthToken(null);
+    setSessionExpiresAt(null);
     clearAuthSession();
     setSelectedBook(null);
     setDashboardOpen(false);
     setActiveTab('inventory');
     goHome();
   };
+
+  // 세션 만료 시각이 지나면 자동 로그아웃
+  useEffect(() => {
+    if (!authUser || !sessionExpiresAt) return;
+
+    const expireSession = () => {
+      handleLogout();
+      alert('세션이 만료되어 자동으로 로그아웃되었습니다. 다시 로그인해주세요.');
+    };
+
+    const remaining = sessionExpiresAt - Date.now();
+    if (remaining <= 0) {
+      expireSession();
+      return;
+    }
+
+    const timer = setTimeout(expireSession, remaining);
+    return () => clearTimeout(timer);
+  }, [authUser, sessionExpiresAt]);
 
   const handleSaveBook = async (bookData) => {
     if (!authUser) return;
